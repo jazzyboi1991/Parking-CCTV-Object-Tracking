@@ -13,7 +13,7 @@
   "shopping_cart_dataset": "https://data.mendeley.com/datasets/vj9g4mn4vv/1",
   "shopping_cart_doi": "10.17632/vj9g4mn4vv.1",
   "shopping_cart_license": "CC BY 4.0",
-  "shopping_cart_images_downloaded": 200,
+  "shopping_cart_images_downloaded": 600,
   "seed": 42,
   "note": "Candidates only. Run verify_training_images.py and approve every image before training."
 }

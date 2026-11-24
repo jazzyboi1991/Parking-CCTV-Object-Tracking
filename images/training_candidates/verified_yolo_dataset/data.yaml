@@ -1,4 +1,4 @@
-path: .
+path: '/Users/manuelpark/Documents/대학교 프로그래밍/머신러닝/과제/images/training_candidates/verified_yolo_dataset'
 train: train/images
 val: valid/images
 nc: 3
