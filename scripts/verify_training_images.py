@@ -274,8 +274,11 @@ def promote_approved(rows, root: Path, seed: int):
         shutil.copy2(item["image"], image_out)
         label_out.write_text("\n".join(item["label"]) + "\n", encoding="utf-8")
 
+    # Use an absolute dataset root so Ultralytics resolves train/val paths
+    # correctly regardless of the shell's current working directory.
+    yaml_root = str(output.resolve()).replace("'", "''")
     (output / "data.yaml").write_text(
-        "path: .\ntrain: train/images\nval: valid/images\nnc: 3\nnames: [car, person, shopping_cart]\n",
+        f"path: '{yaml_root}'\ntrain: train/images\nval: valid/images\nnc: 3\nnames: [car, person, shopping_cart]\n",
         encoding="utf-8",
     )
     print(f"approved images promoted: {len(items)} -> {output}")
