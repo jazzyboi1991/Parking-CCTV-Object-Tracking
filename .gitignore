@@ -1,0 +1,16 @@
+# Local Python environment
+.venv/
+__pycache__/
+*.py[cod]
+
+# Downloaded or generated datasets (external source terms apply)
+images/
+training_candidates/
+verified_yolo_dataset/
+
+# Video files are kept locally; public redistribution rights are unverified
+video/*.mp4
+video/*.mov
+video/*.mkv
+
+.DS_Store
