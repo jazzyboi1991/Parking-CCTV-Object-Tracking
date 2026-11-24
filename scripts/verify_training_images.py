@@ -9,14 +9,17 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 import random
 import re
 import shutil
+from collections import Counter
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 CLASSES = {0: "car", 1: "person", 2: "shopping_cart"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def verify_pair(image_path: Path, label_path: Path):
@@ -205,7 +208,9 @@ def main():
         "Green boxes are source annotations. In review.csv, set approved=yes only when the object and scene are suitable."
     )
     if args.promote:
-        promote_approved(rows, root, args.seed)
+        output = promote_approved(rows, root, args.seed)
+        if output is not None and not audit_yolo_dataset(output):
+            raise SystemExit("Promoted dataset audit failed; review the issues above.")
 
 
 def promote_approved(rows, root: Path, seed: int):
@@ -220,7 +225,7 @@ def promote_approved(rows, root: Path, seed: int):
             "No images promoted: review.csv has no rows marked approved=yes. "
             "Approve suitable images in the CSV, then run this command again."
         )
-        return
+        return None
 
     items = []
     for row in accepted:
@@ -251,7 +256,7 @@ def promote_approved(rows, root: Path, seed: int):
 
     if not items:
         print("No images promoted: approved rows had no usable image/label pairs.")
-        return
+        return None
 
     # Preserve any previous output when approval is empty or the source pairs are missing.
     if output.exists():
@@ -282,6 +287,79 @@ def promote_approved(rows, root: Path, seed: int):
         encoding="utf-8",
     )
     print(f"approved images promoted: {len(items)} -> {output}")
+    return output
+
+
+def audit_yolo_dataset(root: Path) -> bool:
+    """Report train/valid image-label pairing and per-class label counts."""
+    config = root / "data.yaml"
+    if not config.is_file():
+        print(f"Missing dataset config: {config}")
+        return False
+    print("data.yaml:")
+    print(config.read_text(encoding="utf-8"))
+
+    all_ok = True
+    for split in ("train", "valid"):
+        image_dir = root / split / "images"
+        label_dir = root / split / "labels"
+        if not image_dir.is_dir() or not label_dir.is_dir():
+            print(f"[{split}] missing images/ or labels/ directory")
+            all_ok = False
+            continue
+
+        images = {p.stem for p in image_dir.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS}
+        labels = {p.stem for p in label_dir.glob("*.txt")}
+        counts = Counter()
+        images_with_class = Counter()
+        invalid_rows = []
+        empty_labels = 0
+
+        for stem in sorted(labels):
+            label_path = label_dir / f"{stem}.txt"
+            lines = [line.split() for line in label_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            if not lines:
+                empty_labels += 1
+            seen = set()
+            for line_number, row in enumerate(lines, 1):
+                try:
+                    class_id = int(row[0])
+                    box = list(map(float, row[1:]))
+                    if (
+                        len(row) != 5
+                        or class_id not in CLASSES
+                        or not all(math.isfinite(value) for value in box)
+                        or any(value < 0 or value > 1 for value in box)
+                        or box[2] <= 0
+                        or box[3] <= 0
+                        or box[0] - box[2] / 2 < -1e-5
+                        or box[1] - box[3] / 2 < -1e-5
+                        or box[0] + box[2] / 2 > 1 + 1e-5
+                        or box[1] + box[3] / 2 > 1 + 1e-5
+                    ):
+                        raise ValueError("invalid class or box")
+                    counts[class_id] += 1
+                    seen.add(class_id)
+                except (ValueError, IndexError):
+                    invalid_rows.append(f"{label_path}:{line_number}")
+            for class_id in seen:
+                images_with_class[class_id] += 1
+
+        missing_labels = images - labels
+        missing_images = labels - images
+        print(f"\n[{split}]")
+        print(f"images={len(images)} labels={len(labels)}")
+        print(f"images_without_labels={len(missing_labels)} labels_without_images={len(missing_images)}")
+        print(f"empty_label_files={empty_labels} invalid_rows={len(invalid_rows)}")
+        for class_id, class_name in CLASSES.items():
+            print(f"{class_name}: objects={counts[class_id]} images={images_with_class[class_id]}")
+        if invalid_rows:
+            print("invalid examples:")
+            for path in invalid_rows[:10]:
+                print(f"  {path}")
+        all_ok &= not (missing_labels or missing_images or invalid_rows)
+
+    return all_ok
 
 
 if __name__ == "__main__":

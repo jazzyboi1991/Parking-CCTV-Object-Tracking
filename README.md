@@ -10,7 +10,7 @@
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python scripts/download_training_images.py --carts 200 --seed 42
+python scripts/download_training_images.py --carts 600 --seed 42
 python scripts/verify_training_images.py
 ```
 
@@ -33,11 +33,11 @@ python scripts/verify_training_images.py
 Python 3.10 이상이 필요합니다. `requirements.txt`에는 이미지 검토용 Pillow, 영상 프레임 처리용 OpenCV, 객체 탐지용 Ultralytics(PyTorch 포함), 영상 다운로드용 yt-dlp를 적었습니다. FFmpeg를 사용하는 별도 영상 변환 작업에는 FFmpeg도 시스템에 설치해야 합니다.
 
 ```bash
-python scripts/download_training_images.py --carts 200 --seed 42
+python scripts/download_training_images.py --carts 600 --seed 42
 python scripts/verify_training_images.py
 ```
 
-수집 결과는 `training_candidates/`에 저장됩니다. 다운로드 코드는 파일의 SHA-256을 확인하고 EPFL 상자 좌표를 YOLO 형식으로 변환합니다.
+수집 결과는 `images/training_candidates/`에 저장됩니다. 다운로드 코드는 파일의 SHA-256을 확인하고 EPFL 상자 좌표를 YOLO 형식으로 변환합니다. `--carts`는 목표 총량입니다. 같은 seed로 다시 실행하면서 수를 늘리면 기존 후보는 재사용하고 새 후보를 추가합니다. 예: `--carts 800 --seed 42`.
 
 ## 검토 및 학습용 폴더 만들기
 
@@ -49,20 +49,17 @@ python scripts/verify_training_images.py
 python scripts/verify_training_images.py --promote
 ```
 
-결과는 `training_candidates/verified_yolo_dataset/`에 생성되며 `data.yaml`은 클래스 순서를 `[car, person, shopping_cart]`로 지정합니다. 자동 검사는 파일 손상, 라벨 형식, 상자 좌표를 확인하고, 이미지 의미 검토는 연락처 시트를 기준으로 승인한 행만 반영합니다.
+결과는 `images/training_candidates/verified_yolo_dataset/`에 생성되며 `data.yaml`은 클래스 순서를 `[car, person, shopping_cart]`로 지정합니다. `--promote` 실행 시 train/valid 파일 짝, 라벨 형식, 상자 좌표와 클래스별 객체 수까지 이어서 점검합니다. 이미지 의미 검토는 연락처 시트를 기준으로 승인한 행만 반영합니다.
 
 ## 스크립트
 
 - `scripts/download_training_images.py`: EPFL 자동차·사람 데이터와 Mendeley 카트 후보 수집
-- `scripts/verify_training_images.py`: 이미지·라벨 구조 검사, 검토표 생성, 승인 데이터셋 구성
-- `scripts/make_pending_cart_sheets.py`: 아직 검토하지 않은 카트 후보만 연락처 시트로 생성합니다. 승인값은 바꾸지 않습니다.
-- `scripts/audit_yolo_dataset.py`: train/valid 파일 짝, 라벨 형식, 클래스별 객체 수를 점검
+- `scripts/verify_training_images.py`: 이미지·라벨 구조 검사, 검토표와 연락처 시트 생성, 승인 데이터셋 구성, 승격 후 감사
 - `scripts/train_detector.py`: Ultralytics YOLO 학습 실행. `yolo` 명령 대신 가상환경의 Python으로 실행합니다.
 
 승격 후 데이터셋을 점검하고 첫 모델을 학습하려면 과제 루트에서 실행합니다.
 
 ```bash
-python scripts/audit_yolo_dataset.py
 python scripts/train_detector.py
 ```
 
