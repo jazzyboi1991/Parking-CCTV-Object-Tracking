@@ -1,0 +1,19 @@
+{
+  "classes": [
+    "car",
+    "person",
+    "shopping_cart"
+  ],
+  "car_person_source": "/Users/manuelpark/Documents/\ub300\ud559\uad50 \ud504\ub85c\uadf8\ub798\ubc0d/\u1106\u1165\u1109\u1175\u11ab\u1105\u1165\u1102\u1175\u11bc/\uacfc\uc81c/images/training_candidates/parking_lot_epfl",
+  "car_person_dataset": "EPFL Multi-view Multi-class Detection dataset",
+  "car_person_dataset_url": "https://www.epfl.ch/labs/cvlab/data/data-multiclass/",
+  "car_person_license_note": "EPFL states research use is permitted; cite EPFL/CVLab when reporting results.",
+  "car_person_images_downloaded": 1364,
+  "shopping_cart_source": "/Users/manuelpark/Documents/\ub300\ud559\uad50 \ud504\ub85c\uadf8\ub798\ubc0d/\u1106\u1165\u1109\u1175\u11ab\u1105\u1165\u1102\u1175\u11bc/\uacfc\uc81c/images/training_candidates/shopping_trolley_mendeley",
+  "shopping_cart_dataset": "https://data.mendeley.com/datasets/vj9g4mn4vv/1",
+  "shopping_cart_doi": "10.17632/vj9g4mn4vv.1",
+  "shopping_cart_license": "CC BY 4.0",
+  "shopping_cart_images_downloaded": 200,
+  "seed": 42,
+  "note": "Candidates only. Run verify_training_images.py and approve every image before training."
+}

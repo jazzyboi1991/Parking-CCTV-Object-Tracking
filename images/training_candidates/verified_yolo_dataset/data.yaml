@@ -1,0 +1,5 @@
+path: .
+train: train/images
+val: valid/images
+nc: 3
+names: [car, person, shopping_cart]
