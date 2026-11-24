@@ -56,6 +56,7 @@ python scripts/verify_training_images.py --promote
 - `scripts/download_training_images.py`: EPFL 자동차·사람 데이터와 Mendeley 카트 후보 수집
 - `scripts/verify_training_images.py`: 이미지·라벨 구조 검사, 검토표와 연락처 시트 생성, 승인 데이터셋 구성, 승격 후 감사
 - `scripts/train_detector.py`: Ultralytics YOLO 학습 실행. `yolo` 명령 대신 가상환경의 Python으로 실행합니다.
+- `scripts/predict_detector.py`: 학습한 가중치로 이미지·영상 추론. 작은 객체가 있는 CCTV에 맞춰 기본 입력 크기 1280, 신뢰도 임계값 0.10을 사용합니다.
 
 승격 후 데이터셋을 점검하고 첫 모델을 학습하려면 과제 루트에서 실행합니다.
 
@@ -64,6 +65,14 @@ python scripts/train_detector.py
 ```
 
 학습 옵션은 예를 들어 `python scripts/train_detector.py --epochs 50 --imgsz 640 --batch 8 --device mps`처럼 지정할 수 있습니다.
+
+학습한 모델로 테스트 영상을 추론하려면 다음처럼 실행합니다.
+
+```bash
+python scripts/predict_detector.py --source video/KHOU-11-Grocery-Parking-CCTV-clip-39-44s.mp4 --imgsz 1280 --conf 0.10 --device mps --name predict-khou-39-44-improved
+```
+
+탐지 상자 영상은 `runs/detect/predict-khou-39-44-improved/`에 저장됩니다. 작은 CCTV 객체는 낮은 신뢰도 상자도 포함할 수 있으므로 결과를 눈으로 확인한 뒤 임계값을 조정하세요.
 
 ## 폴더 주의
 
