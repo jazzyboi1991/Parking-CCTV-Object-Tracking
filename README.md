@@ -51,6 +51,23 @@ python scripts/verify_training_images.py --promote
 
 결과는 `training_candidates/verified_yolo_dataset/`에 생성되며 `data.yaml`은 클래스 순서를 `[car, person, shopping_cart]`로 지정합니다. 자동 검사는 파일 손상, 라벨 형식, 상자 좌표를 확인하고, 이미지 의미 검토는 연락처 시트를 기준으로 승인한 행만 반영합니다.
 
+## 스크립트
+
+- `scripts/download_training_images.py`: EPFL 자동차·사람 데이터와 Mendeley 카트 후보 수집
+- `scripts/verify_training_images.py`: 이미지·라벨 구조 검사, 검토표 생성, 승인 데이터셋 구성
+- `scripts/make_pending_cart_sheets.py`: 아직 검토하지 않은 카트 후보만 연락처 시트로 생성합니다. 승인값은 바꾸지 않습니다.
+- `scripts/audit_yolo_dataset.py`: train/valid 파일 짝, 라벨 형식, 클래스별 객체 수를 점검
+- `scripts/train_detector.py`: Ultralytics YOLO 학습 실행. `yolo` 명령 대신 가상환경의 Python으로 실행합니다.
+
+승격 후 데이터셋을 점검하고 첫 모델을 학습하려면 과제 루트에서 실행합니다.
+
+```bash
+python scripts/audit_yolo_dataset.py
+python scripts/train_detector.py
+```
+
+학습 옵션은 예를 들어 `python scripts/train_detector.py --epochs 50 --imgsz 640 --batch 8 --device mps`처럼 지정할 수 있습니다.
+
 ## 폴더 주의
 
 - 이전에 잘못 추출한 CCTV 프레임과 Open Images 후보 폴더는 정리했습니다. 위 스크립트로 새 후보 데이터를 만들 수 있습니다.
