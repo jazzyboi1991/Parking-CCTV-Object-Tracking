@@ -3,9 +3,4 @@
 __pycache__/
 *.py[cod]
 
-# Generated training outputs and pretrained weights
-runs/
-*.pt
-*.cache
-
 .DS_Store
