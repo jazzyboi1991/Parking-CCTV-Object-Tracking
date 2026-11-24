@@ -30,7 +30,7 @@ python scripts/verify_training_images.py
 
 ## 직접 수집하기
 
-Python 3.10 이상과 Pillow가 필요합니다.
+Python 3.10 이상이 필요합니다. `requirements.txt`에는 이미지 검토용 Pillow, 영상 프레임 처리용 OpenCV, 객체 탐지용 Ultralytics(PyTorch 포함), 영상 다운로드용 yt-dlp를 적었습니다. FFmpeg를 사용하는 별도 영상 변환 작업에는 FFmpeg도 시스템에 설치해야 합니다.
 
 ```bash
 python scripts/download_training_images.py --carts 200 --seed 42
