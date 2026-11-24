@@ -1,0 +1,4 @@
+path: "/Users/manuelpark/Documents/대학교 프로그래밍/머신러닝/과제/images/video_finetune/dataset"
+train: train.txt
+val: "/Users/manuelpark/Documents/대학교 프로그래밍/머신러닝/과제/images/training_candidates/verified_yolo_dataset/valid/images"
+names: [car, person, shopping_cart]
