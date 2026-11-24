@@ -11,8 +11,12 @@ from ultralytics import YOLO
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, default=None, help="path to YOLO data.yaml")
-    parser.add_argument("--model", default="yolo11n.pt", help="model weights or model YAML")
+    parser.add_argument(
+        "--data", type=Path, default=None, help="path to YOLO data.yaml"
+    )
+    parser.add_argument(
+        "--model", default="yolo11n.pt", help="model weights or model YAML"
+    )
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--batch", type=int, default=8)
@@ -28,7 +32,9 @@ def main() -> None:
         / "data.yaml"
     )
     if not data.is_file():
-        parser.error(f"dataset config not found: {data}; run verify_training_images.py --promote first")
+        parser.error(
+            f"dataset config not found: {data}; run verify_training_images.py --promote first"
+        )
 
     model = YOLO(args.model)
     model.train(

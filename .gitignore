@@ -4,3 +4,6 @@ __pycache__/
 *.py[cod]
 
 .DS_Store
+
+# Large generated inference video (keep local, do not commit)
+/runs/detect/06-predict-viralhog-original-finetuned/ViralHog-Shopping-Carts-Collide-with-Cars-original.mp4

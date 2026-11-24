@@ -98,7 +98,9 @@ def make_sheets(records, out_dir: Path, source_name: str, cols=5, rows=4):
                         (left, top, right, bottom), outline="#00ff55", width=2
                     )
                     class_name = CLASSES.get(cls, f"class_{cls}")
-                    draw.text((left + 2, top + 2), class_name, fill="#00ff55", font=font)
+                    draw.text(
+                        (left + 2, top + 2), class_name, fill="#00ff55", font=font
+                    )
             draw.text((x + 3, y + thumb_h + 3), rec["image"], fill="black", font=font)
         sheet.save(sheet_dir / f"review-{page:03d}.jpg", quality=88)
 
@@ -125,7 +127,9 @@ def main():
     if review_path.exists():
         with review_path.open(newline="", encoding="utf-8-sig") as f:
             for old in csv.DictReader(f):
-                previous_approvals[(old.get("source", ""), old.get("image", ""))] = old.get("approved", "")
+                previous_approvals[(old.get("source", ""), old.get("image", ""))] = (
+                    old.get("approved", "")
+                )
     rows = []
     records = {"shopping_trolley_mendeley": [], "parking_lot_epfl": []}
     cart_root = root / "shopping_trolley_mendeley"
@@ -138,7 +142,9 @@ def main():
                     "image": image_path.name,
                     "structural_check": "FAIL",
                     "issues": "missing_label",
-                    "approved": previous_approvals.get(("Mendeley trolley", image_path.name), ""),
+                    "approved": previous_approvals.get(
+                        ("Mendeley trolley", image_path.name), ""
+                    ),
                 }
             )
             continue
@@ -150,7 +156,9 @@ def main():
                 "image": image_path.name,
                 "structural_check": status,
                 "issues": ";".join(issues),
-                "approved": previous_approvals.get(("Mendeley trolley", image_path.name), ""),
+                "approved": previous_approvals.get(
+                    ("Mendeley trolley", image_path.name), ""
+                ),
             }
         )
         if result:
@@ -171,7 +179,9 @@ def main():
                     "image": image_path.name,
                     "structural_check": "FAIL",
                     "issues": "missing_label",
-                    "approved": previous_approvals.get(("EPFL parking/campus", image_path.name), ""),
+                    "approved": previous_approvals.get(
+                        ("EPFL parking/campus", image_path.name), ""
+                    ),
                 }
             )
             continue
@@ -183,7 +193,9 @@ def main():
                 "image": image_path.name,
                 "structural_check": status,
                 "issues": ";".join(issues),
-                "approved": previous_approvals.get(("EPFL parking/campus", image_path.name), ""),
+                "approved": previous_approvals.get(
+                    ("EPFL parking/campus", image_path.name), ""
+                ),
             }
         )
         if result:
@@ -217,8 +229,10 @@ def promote_approved(rows, root: Path, seed: int):
     """Build a clean YOLO folder from manually approved, structurally valid rows."""
     output = root / "verified_yolo_dataset"
     accepted = [
-        r for r in rows
-        if r["structural_check"] == "PASS" and r.get("approved", "").strip().lower() == "yes"
+        r
+        for r in rows
+        if r["structural_check"] == "PASS"
+        and r.get("approved", "").strip().lower() == "yes"
     ]
     if not accepted:
         print(
@@ -231,12 +245,22 @@ def promote_approved(rows, root: Path, seed: int):
     for row in accepted:
         if row["source"] == "Mendeley trolley":
             image = root / "shopping_trolley_mendeley" / "images" / row["image"]
-            label = root / "shopping_trolley_mendeley" / "labels" / (Path(row["image"]).stem + ".txt")
+            label = (
+                root
+                / "shopping_trolley_mendeley"
+                / "labels"
+                / (Path(row["image"]).stem + ".txt")
+            )
             class_map = {0: 2}  # Mendeley's one class is shopping-trolley
             group = ("cart", Path(row["image"]).stem)
         else:
             image = root / "parking_lot_epfl" / "images" / row["image"]
-            label = root / "parking_lot_epfl" / "labels" / (Path(row["image"]).stem + ".txt")
+            label = (
+                root
+                / "parking_lot_epfl"
+                / "labels"
+                / (Path(row["image"]).stem + ".txt")
+            )
             class_map = {0: 0, 1: 1}  # EPFL's car/person annotations
             match = re.match(r"frame(\d+)_cam\d+", Path(row["image"]).stem)
             group = ("epfl", match.group(1) if match else Path(row["image"]).stem)
@@ -308,7 +332,9 @@ def audit_yolo_dataset(root: Path) -> bool:
             all_ok = False
             continue
 
-        images = {p.stem for p in image_dir.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS}
+        images = {
+            p.stem for p in image_dir.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS
+        }
         labels = {p.stem for p in label_dir.glob("*.txt")}
         counts = Counter()
         images_with_class = Counter()
@@ -317,7 +343,11 @@ def audit_yolo_dataset(root: Path) -> bool:
 
         for stem in sorted(labels):
             label_path = label_dir / f"{stem}.txt"
-            lines = [line.split() for line in label_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            lines = [
+                line.split()
+                for line in label_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
             if not lines:
                 empty_labels += 1
             seen = set()
@@ -349,10 +379,14 @@ def audit_yolo_dataset(root: Path) -> bool:
         missing_images = labels - images
         print(f"\n[{split}]")
         print(f"images={len(images)} labels={len(labels)}")
-        print(f"images_without_labels={len(missing_labels)} labels_without_images={len(missing_images)}")
+        print(
+            f"images_without_labels={len(missing_labels)} labels_without_images={len(missing_images)}"
+        )
         print(f"empty_label_files={empty_labels} invalid_rows={len(invalid_rows)}")
         for class_id, class_name in CLASSES.items():
-            print(f"{class_name}: objects={counts[class_id]} images={images_with_class[class_id]}")
+            print(
+                f"{class_name}: objects={counts[class_id]} images={images_with_class[class_id]}"
+            )
         if invalid_rows:
             print("invalid examples:")
             for path in invalid_rows[:10]:

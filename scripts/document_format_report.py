@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Apply the original Word template's formatting to the existing report draft."""
+
+import re
 from copy import deepcopy
 from pathlib import Path
-import re
 
 from docx import Document
 from docx.oxml.ns import qn
@@ -34,6 +35,7 @@ def clone_with_text(source, text):
         if child.tag != qn("w:rPr"):
             run.remove(child)
     from docx.oxml import OxmlElement
+
     node = OxmlElement("w:t")
     node.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
     node.text = text
@@ -48,8 +50,10 @@ def main():
     template = Document(TEMPLATE)
     draft = Document(DRAFT)
     paragraphs = template.paragraphs
+
     def find(text):
         return next(p for p in paragraphs if text in p.text)
+
     title = find("Cloud Computing Homework 1")
     subtitle = find("문제 및 답안 작성 양식")
     heading = find("교재 연습문제 답안")
@@ -79,6 +83,7 @@ def main():
                 if child.tag != qn("w:rPr"):
                     run.remove(child)
             from docx.oxml import OxmlElement
+
             t = OxmlElement("w:t")
             t.text = text
             run.append(t)

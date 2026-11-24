@@ -26,7 +26,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--model",
-        default="runs/detect/train/weights/best.pt",
+        default="runs/detect/01-train/weights/best.pt",
         help="trained weights path (default: %(default)s)",
     )
     parser.add_argument(
