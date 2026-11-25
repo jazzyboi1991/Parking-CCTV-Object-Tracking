@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_VIDEO = (
     ROOT / "original videos/ViralHog-Shopping-Carts-Collide-with-Cars-original.mp4"
 )
-DEFAULT_MODEL = ROOT / "runs/detect/04-parking-video-finetune/weights/best.pt"
+DEFAULT_MODEL = ROOT / "runs/detect/05-parking-video-finetune/weights/best.pt"
 DEFAULT_OUTPUT = ROOT / "images/video_finetune/original_person_review"
 COLORS = {0: "red", 1: "lime", 2: "cyan"}
 

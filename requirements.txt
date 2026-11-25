@@ -7,3 +7,6 @@ ultralytics>=8.3
 
 # Downloading source videos with Python
 yt-dlp>=2025.1
+
+# Optional Word report formatting script
+python-docx>=1.1

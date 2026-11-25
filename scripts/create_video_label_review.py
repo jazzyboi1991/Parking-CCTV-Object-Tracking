@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 FRAMES = ROOT / "images/video_finetune/unlabeled"
-DRAFTS = ROOT / "runs/detect/03-runs/detect"
+DRAFTS = ROOT / "runs/detect"
 LABELS = ROOT / "images/video_finetune/labels_draft"
 OVERLAYS = ROOT / "images/video_finetune/review_overlays"
 COLORS = {0: "red", 1: "lime", 2: "cyan"}
@@ -47,9 +47,9 @@ def main() -> None:
     for frame in frames:
         name = frame.stem + ".txt"
         car_person = read_boxes(
-            DRAFTS / "01-video-label-draft/labels" / name, {0: 1, 2: 0}
+            DRAFTS / "03-video-label-draft/labels" / name, {0: 1, 2: 0}
         )
-        carts = read_boxes(DRAFTS / "02-video-cart-draft/labels" / name, {2: 2})
+        carts = read_boxes(DRAFTS / "04-video-cart-draft/labels" / name, {2: 2})
         merged[name] = car_person + carts
 
     LABELS.mkdir(parents=True)

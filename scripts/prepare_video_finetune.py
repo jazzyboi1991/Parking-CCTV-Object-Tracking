@@ -2,6 +2,7 @@
 """Prepare a separate dataset using video label drafts and existing training data."""
 
 import argparse
+import math
 import shutil
 from pathlib import Path
 
@@ -40,19 +41,40 @@ def main() -> None:
         )
     if output_dir.exists():
         raise SystemExit(f"Output already exists: {output_dir}")
+    cleaned_labels = {}
+    boundary_tolerance = 1e-5
     for frame in frames:
         path = labels_dir / f"{frame.stem}.txt"
         if not path.is_file():
             raise SystemExit(f"Missing label: {path}")
+        cleaned_lines = []
         for line in path.read_text().splitlines():
             fields = line.split()
             if len(fields) != 5 or fields[0] not in {"0", "1", "2"}:
                 raise SystemExit(f"Invalid label in {path}: {line}")
             x, y, w, h = map(float, fields[1:])
-            if not (
-                0 <= x - w / 2 < x + w / 2 <= 1 and 0 <= y - h / 2 < y + h / 2 <= 1
+            x1, y1, x2, y2 = x - w / 2, y - h / 2, x + w / 2, y + h / 2
+            if (
+                not all(math.isfinite(value) for value in (x, y, w, h))
+                or w <= 0
+                or h <= 0
+                or x1 < -boundary_tolerance
+                or y1 < -boundary_tolerance
+                or x2 > 1 + boundary_tolerance
+                or y2 > 1 + boundary_tolerance
             ):
                 raise SystemExit(f"Invalid bounding box in {path}: {line}")
+            x1, y1, x2, y2 = (
+                max(0.0, x1),
+                max(0.0, y1),
+                min(1.0, x2),
+                min(1.0, y2),
+            )
+            cleaned_lines.append(
+                f"{fields[0]} {(x1 + x2) / 2:.8f} {(y1 + y2) / 2:.8f} "
+                f"{x2 - x1:.8f} {y2 - y1:.8f}"
+            )
+        cleaned_labels[frame.stem] = "\n".join(cleaned_lines) + "\n"
     image_dir = output_dir / "images"
     label_dir = output_dir / "labels"
     image_dir.mkdir(parents=True)
@@ -64,7 +86,7 @@ def main() -> None:
             stem = f"{frame.stem}-repeat-{repeat:02d}"
             destination = image_dir / f"{stem}.jpg"
             shutil.copy2(frame, destination)
-            shutil.copy2(labels_dir / f"{frame.stem}.txt", label_dir / f"{stem}.txt")
+            (label_dir / f"{stem}.txt").write_text(cleaned_labels[frame.stem])
             new_images.append(str(destination))
     (output_dir / "train.txt").write_text(
         "\n".join(map(str, old_images)) + "\n" + "\n".join(new_images) + "\n"
